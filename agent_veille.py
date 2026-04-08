@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 # agent_veille.py
 # Agent de veille hebdomadaire – Résumé automatique via Claude API
 # Cet agent interroge Claude pour produire un résumé hebdomadaire structuré
@@ -19,12 +18,12 @@ import requests
 from dotenv import load_dotenv
 load_dotenv()
 
-# ── Configuration ─────────────────────────────────────────────────────────────
+# config
 ANTHROPIC_API_URL = "https://api.anthropic.com/v1/messages"
 MODEL             = "claude-sonnet-4-20250514"
 MAX_TOKENS        = 2000
 
-# Thématiques de veille par défaut
+# thématiques de veille par défaut
 THEMATIQUES = [
     "usage éthique de l'IA en entreprise",
     "gouvernance des données et protection de la vie privée",
@@ -35,7 +34,6 @@ THEMATIQUES = [
 
 
 def get_semaine_courante() -> str:
-    """Retourne la plage de dates de la semaine courante."""
     aujourd_hui  = datetime.now()
     debut_semaine = aujourd_hui - timedelta(days=aujourd_hui.weekday())
     fin_semaine   = debut_semaine + timedelta(days=6)
@@ -47,7 +45,7 @@ def get_semaine_courante() -> str:
 
 def construire_prompt(thematiques: list, semaine: str, topic_custom: str = None) -> str:
     """
-    Construit le prompt envoyé à Claude pour générer le résumé de veille.
+    construit le prompt envoyé à Claude pour générer le résumé de veille
     """
     if topic_custom:
         sujet = f"le sujet spécifique : **{topic_custom}**"
@@ -96,7 +94,6 @@ Adapte le ton pour des dirigeants et équipes data de PME engagées."""
 
 def appeler_claude_api(prompt: str) -> str:
     """
-    Appelle l'API Anthropic Claude et retourne le texte généré.
     """
     headers = {
         "Content-Type": "application/json",
@@ -126,7 +123,7 @@ def appeler_claude_api(prompt: str) -> str:
         response.raise_for_status()
         data = response.json()
 
-        # Extraction du texte de la réponse
+        # extraction du texte de la réponse
         for block in data.get("content", []):
             if block.get("type") == "text":
                 return block["text"]
@@ -143,7 +140,7 @@ def appeler_claude_api(prompt: str) -> str:
 
 def sauvegarder_resume(contenu: str, semaine: str) -> str:
     """
-    Sauvegarde le résumé dans un fichier Markdown daté.
+    sauvegarde le résumé dans un fichier Markdown daté
     """
     os.makedirs("resumes_veille", exist_ok=True)
 
@@ -162,7 +159,6 @@ def sauvegarder_resume(contenu: str, semaine: str) -> str:
 
 
 def afficher_banniere():
-    """Affiche la bannière de l'agent."""
     print("\n" + "=" * 60)
     print("  🔍 AGENT DE VEILLE FASTIA")
     print("  IA Éthique & Gouvernance des Données")
@@ -170,7 +166,7 @@ def afficher_banniere():
 
 
 def main():
-    # ── Parsing des arguments ─────────────────────────────────────────────
+    # parsing des arguments
     parser = argparse.ArgumentParser(
         description="Agent de veille hebdomadaire IA éthique & gouvernance données"
     )
@@ -194,7 +190,7 @@ def main():
 
     afficher_banniere()
 
-    # ── Affichage des thématiques ─────────────────────────────────────────
+    # affichage des thématiques
     if args.liste_themes:
         print("📋 Thématiques de veille configurées :")
         for i, t in enumerate(THEMATIQUES, 1):
@@ -202,7 +198,7 @@ def main():
         print()
         return
 
-    # ── Génération du résumé ──────────────────────────────────────────────
+    # génération du résumé
     semaine = get_semaine_courante()
 
     if args.topic:
@@ -211,18 +207,15 @@ def main():
         print(f"📅 Semaine : {semaine}")
         print(f"📌 Thématiques : {len(THEMATIQUES)} sujets de veille\n")
 
-    # Construction du prompt
     prompt = construire_prompt(THEMATIQUES, semaine, args.topic)
 
-    # Appel à l'API Claude
     resume = appeler_claude_api(prompt)
 
-    # Affichage du résumé
     print("\n" + "─" * 60)
     print(resume)
     print("─" * 60 + "\n")
 
-    # Sauvegarde optionnelle
+    # optional save resume to a markdown file if requested
     if args.save:
         fichier = sauvegarder_resume(resume, semaine)
         print(f"✅ Résumé sauvegardé : {fichier}")
