@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
-# =============================================================================
 # agent_veille.py
 # Agent de veille hebdomadaire – Résumé automatique via Claude API
-# =============================================================================
 # Cet agent interroge Claude pour produire un résumé hebdomadaire structuré
 # sur les thématiques de veille : IA éthique & gouvernance des données.
 #
@@ -10,7 +8,6 @@
 #   python3 agent_veille.py                    # Résumé semaine courante
 #   python3 agent_veille.py --save             # Sauvegarde dans un fichier .md
 #   python3 agent_veille.py --topic "AI Act"   # Résumé sur un topic spécifique
-# =============================================================================
 
 import argparse
 import json
